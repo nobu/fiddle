@@ -321,6 +321,21 @@ module Fiddle
         omit("memory leak detection is fragile with TruffleRuby")
       end
 
+      if respond_to?(:assert_no_memory_leak) and method(:assert_no_memory_leak).parameters.rassoc(:samples)
+        assert_no_memory_leak(%w[-W0 -rfiddle], "#{<<-"{#"}", "#{<<-'};'}", samples: 2..100)
+        rb_obj_frozen_p_symbol = Fiddle.dlopen(nil)["rb_obj_frozen_p"]
+        rb_obj_frozen_p = Fiddle::Function.new(rb_obj_frozen_p_symbol,
+                                               [Fiddle::TYPE_UINTPTR_T],
+                                               Fiddle::TYPE_UINTPTR_T)
+        a = "a"
+        {#
+          10_000.times do
+            rb_obj_frozen_p.call(a)
+          end
+        };
+        return
+      end
+
       if respond_to?(:assert_nothing_leaked_memory)
         rb_obj_frozen_p_symbol = Fiddle.dlopen(nil)["rb_obj_frozen_p"]
         rb_obj_frozen_p = Fiddle::Function.new(rb_obj_frozen_p_symbol,
