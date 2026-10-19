@@ -3,7 +3,6 @@
 require 'rbconfig/sizeof'
 require 'test/unit'
 require 'core_assertions'
-Test::Unit::TestCase.include Test::Unit::CoreAssertions
 require 'fiddle'
 
 puts("Fiddle::VERSION: #{Fiddle::VERSION}") if $VERBOSE
@@ -174,6 +173,16 @@ Fiddle::LIBM_SO = libm_so
 
 module Fiddle
   class TestCase < Test::Unit::TestCase
+    include Test::Unit::CoreAssertions
+
+    def assert(*args, &block)
+      if block
+        Test::Unit::Assertions.instance_method(:assert).bind(self).call(*args, &block)
+      else
+        super
+      end
+    end
+
     def setup
       @libc = Fiddle.dlopen(LIBC_SO)
       @libm = Fiddle.dlopen(LIBM_SO)
