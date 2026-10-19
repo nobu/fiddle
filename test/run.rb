@@ -2,6 +2,9 @@
 
 $VERBOSE = true
 
+gemfile = File.expand_path("../Gemfile", __dir__)
+require "bundler/setup" if File.file?(gemfile)
+
 source_dir = "#{__dir__}/.."
 if File.exist?("#{source_dir}/lib")
   # Test against Fiddle in source directory
